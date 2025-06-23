@@ -10,20 +10,23 @@
 </head>
 
 <body class="loading-bg">
+<!-- Preloader -->
+<div id="preloader" class="preloader">
+    <div class="spinner"></div>
+    <p>Loading Weather App...</p>
+</div>
 
     <!-- Background Overlay -->
     <div id="background-overlay"></div>
 
     <main class="container">
         <div id="loading" class="loading-message">Loading Weather Data...</div>
-
-        
         <section class="search-section">
             <input type="text" id="location-input" placeholder="Enter city name..." />
             <button id="search-btn">Search</button>
             <button id="geolocation-btn">📍 Use My Location</button>
-            <!-- Dark Mode Toggle -->
             <button id="dark-mode-toggle" class="dark-mode-btn">🌙 Dark Mode</button>
+
         </section>
 
         <section class="weather-info" id="current-weather">
