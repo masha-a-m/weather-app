@@ -75,9 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========== LOADER & ERROR HANDLING ==========
 function showLoading() {
   const loading = document.getElementById('loading');
-  if (loading) {
-    loading.style.display = 'block';
-  }
+  if (loading) loading.style.display = 'block';
 
   window.loadingTimeout = setTimeout(() => {
     showError("Loading took too long. Please try again.");

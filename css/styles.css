@@ -52,6 +52,7 @@ body.dark-mode {
 }
 
 .container {
+    max-width: 1000px;
     margin: auto;
     padding: 2rem;
 }
@@ -196,10 +197,10 @@ button:hover {
 .error-message {
     display: none;
     text-align: center;
-    margin: 1rem 0;
+    margin: 3rem 0;
     font-weight: bold;
     font-size: 1.2rem;
-    color: yellow;
+    color: rgb(166, 195, 209);
     font-size: 1.2rem;
         z-index: 1000;
         position: absolute;
