@@ -218,20 +218,20 @@ function updateBackground(weather) {
       bgImage = 'url("../images/sunny.avif")';
       break;
     case 'clouds':
-      bgImage = 'url("images\grey clouds.avif")';
+      bgImage = 'url("../images/grey clouds.avif")';
       break;
     case 'rain':
     case 'drizzle':
-      bgImage = 'url("images\rainy.avif")';
+      bgImage = 'url("../images/rainy.avif")';
       break;
     case 'thunderstorm':
-      bgImage = 'url("images\thunderstorm.avif")';
+      bgImage = 'url("..images/thunderstorm.avif")';
       break;
     case 'snow':
-      bgImage = 'url("images\snow.avif")';
+      bgImage = 'url("../images/snow.avif")';
       break;
     default:
-      bgImage = 'url("images\grey clouds.avif")';
+      bgImage = 'url("../images/grey clouds.avif")';
   }
 
   body.style.backgroundImage = bgImage;
