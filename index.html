@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="loading-bg">
+
+    <!-- Background Overlay -->
+    <div id="background-overlay"></div>
+
+    <main class="container">
+        <section class="search-section">
+            <input type="text" id="location-input" placeholder="Enter city name..." />
+            <button id="search-btn">Search</button>
+            <button id="geolocation-btn">📍 Use My Location</button>
+        </section>
+
+        <section class="weather-info" id="current-weather">
+            <h2 id="location-name">Loading...</h2>
+            <p id="weather-description">Fetching data</p>
+            <img id="weather-icon" src="" alt="Weather Icon" />
+            <p id="temperature" class="temp">--°C</p>
+            <div class="details">
+                <p>Feels like: <span id="feels-like">--</span>°C</p>
+                <p>Humidity: <span id="humidity">--</span>%</p>
+                <p>Wind: <span id="wind-speed">--</span> km/h</p>
+                <p>Sunrise: <span id="sunrise-time">--</span></p>
+                <p>Sunset: <span id="sunset-time">--</span></p>
+            </div>
+            <button id="toggle-unit">Switch to °F</button>
+        </section>
+
+        <section class="forecast" id="forecast">
+            <h3>5-Day Forecast</h3>
+            <div class="forecast-cards" id="forecast-cards">
+                <!-- Forecast cards will be injected here -->
+            </div>
+        </section>
+
+        <section class="recent-searches" id="recent-searches">
+            <h3>Recent Searches</h3>
+            <ul id="search-list">
+                <!-- Search history will appear here -->
+            </ul>
+        </section>
+
+        <div id="loading" class="loading-message">Loading Weather Data...</div>
+        <div id="error" class="error-message"></div>
+    </main>
+
+    <footer>
+        <p>Weather App © 2025 | Powered by OpenWeatherMap</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
