@@ -17,6 +17,26 @@ body {
     background-attachment: fixed;
 }
 
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #f5f5f5;
+  }
+  
+  body.dark-mode .container,
+  body.dark-mode .weather-info,
+  body.dark-mode .forecast,
+  body.dark-mode .recent-searches {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  body.dark-mode button {
+    background-color: #4a4a4a;
+    color: #fff;
+  }
+
+
 #background-overlay {
     position: fixed;
     top: 0;
@@ -60,7 +80,7 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #1e90ff;
+    background-color: #88cbdf;
     color: white;
     transition: background-color 0.3s;
 }
@@ -123,13 +143,16 @@ button:hover {
 .forecast-cards {
     display: flex;
     overflow-x: auto;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
     gap: 1rem;
     padding-bottom: 1rem;
 }
 
 .forecast-card {
     background: rgba(255, 255, 255, 0.1);
-    padding: 1rem;
+    padding: 3rem;
     border-radius: 10px;
     text-align: center;
     min-width: 120px;
@@ -177,6 +200,16 @@ button:hover {
     font-weight: bold;
     font-size: 1.2rem;
     color: yellow;
+    font-size: 1.2rem;
+        z-index: 1000;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 20px;
+        border-radius: 8px;
+        width: fit-content;
 }
 
 .error-message {

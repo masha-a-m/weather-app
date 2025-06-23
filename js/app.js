@@ -8,60 +8,99 @@ const ICON_URL = 'http://openweathermap.org/img/wn/';
 let currentUnit = 'C';
 let currentCity = '';
 
+showLoading();
 document.addEventListener('DOMContentLoaded', () => {
+  // Show loader immediately
+
+  // Get DOM elements
   const searchBtn = document.getElementById('search-btn');
   const geoBtn = document.getElementById('geolocation-btn');
   const input = document.getElementById('location-input');
   const toggleUnitBtn = document.getElementById('toggle-unit');
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
 
-  searchBtn.addEventListener('click', () => {
-    const city = input.value.trim();
-    if (city) getWeatherData(city);
-  });
+  // Initialize Dark Mode
+  if (localStorage.getItem('darkMode') === 'enabled' ||
+      window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    enableDarkMode();
+  }
 
-  geoBtn.addEventListener('click', () => {
-    getLocation();
-  });
+  // Event Listeners
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.contains('dark-mode') ? disableDarkMode() : enableDarkMode();
+    });
+  }
 
-  toggleUnitBtn.addEventListener('click', () => {
-    currentUnit = currentUnit === 'C' ? 'F' : 'C';
-    toggleUnitBtn.textContent = `Switch to °${currentUnit === 'C' ? 'F' : 'C'}`;
-    if (currentCity) getWeatherData(currentCity);
-  });
-
-  input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      const city = input.value.trim();
+  if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
+      const city = input?.value.trim();
       if (city) getWeatherData(city);
-    }
-  });
+    });
+  }
 
-  // Load recent searches on page load
+  if (geoBtn) {
+    geoBtn.addEventListener('click', getLocation);
+  }
+
+  if (toggleUnitBtn) {
+    toggleUnitBtn.addEventListener('click', () => {
+      currentUnit = currentUnit === 'C' ? 'F' : 'C';
+      toggleUnitBtn.textContent = `Switch to °${currentUnit === 'C' ? 'F' : 'C'}`;
+      if (currentCity) getWeatherData(currentCity);
+    });
+  }
+
+  if (input) {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const city = input.value.trim();
+        if (city) getWeatherData(city);
+      }
+    });
+  }
+
+  // Load recent searches
   loadRecentSearches();
 
   // Auto-detect location on first visit
   if (!localStorage.getItem('hasLoaded')) {
     getLocation();
     localStorage.setItem('hasLoaded', true);
+  } else {
+    hideLoading();
   }
 });
 
+// ========== LOADER & ERROR HANDLING ==========
 function showLoading() {
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('error').style.display = 'none';
+  const loading = document.getElementById('loading');
+  if (loading) {
+    loading.style.display = 'block';
+  }
+
+  window.loadingTimeout = setTimeout(() => {
+    showError("Loading took too long. Please try again.");
+    hideLoading();
+  }, 10000);
 }
 
 function hideLoading() {
-  document.getElementById('loading').style.display = 'none';
+  const loading = document.getElementById('loading');
+  if (loading) loading.style.display = 'none';
+  clearTimeout(window.loadingTimeout);
 }
 
 function showError(message) {
   const errorDiv = document.getElementById('error');
-  errorDiv.textContent = message;
-  errorDiv.style.display = 'block';
+  if (errorDiv) {
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
   hideLoading();
 }
 
+// ========== GEOLOCATION ==========
 function getLocation() {
   if (navigator.geolocation) {
     showLoading();
@@ -74,21 +113,30 @@ function getLocation() {
 function success(position) {
   const lat = position.coords.latitude;
   const lon = position.coords.longitude;
+
   fetch(`${CURRENT_WEATHER_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error("Location weather fetch failed");
+      return response.json();
+    })
     .then(data => {
       displayCurrentWeather(data);
       getForecast(data.name);
       saveToRecent(data.name);
       updateBackground(data.weather[0].main);
+      hideLoading();
     })
-    .catch(() => showError("Error fetching location-based weather."));
+    .catch(err => {
+      console.error(err);
+      showError("Error fetching location-based weather.");
+    });
 }
 
 function error() {
   showError("Unable to retrieve your location.");
 }
 
+// ========== WEATHER DATA ==========
 function getWeatherData(city) {
   showLoading();
   fetch(`${CURRENT_WEATHER_URL}?q=${city}&appid=${API_KEY}&units=metric`)
@@ -118,9 +166,13 @@ function getForecast(city) {
     });
 }
 
+// ========== DISPLAY FUNCTIONS ==========
 function displayCurrentWeather(data) {
+  const iconElement = document.getElementById('weather-icon');
+  if (!iconElement) return;
+
   const name = data.name;
-  const temp = currentUnit === 'C' ? Math.round(data.main.temp) : celsiusToFahrenheit(data.main.feels_like);
+  const temp = currentUnit === 'C' ? Math.round(data.main.temp) : celsiusToFahrenheit(data.main.temp);
   const feelsLike = currentUnit === 'C' ? Math.round(data.main.feels_like) : celsiusToFahrenheit(data.main.feels_like);
   const humidity = data.main.humidity;
   const wind = data.wind.speed;
@@ -138,11 +190,14 @@ function displayCurrentWeather(data) {
   document.getElementById('weather-description').textContent = description.charAt(0).toUpperCase() + description.slice(1);
   document.getElementById('sunrise-time').textContent = sunrise;
   document.getElementById('sunset-time').textContent = sunset;
-  document.getElementById('weather-icon').src = `${ICON_URL}${icon}@2x.png`;
+
+  iconElement.src = `${ICON_URL}${icon}@2x.png`;
 }
 
 function displayForecast(forecastList) {
   const container = document.getElementById('forecast-cards');
+  if (!container) return;
+
   container.innerHTML = '';
 
   forecastList.forEach(day => {
@@ -163,6 +218,7 @@ function displayForecast(forecastList) {
   });
 }
 
+// ========== UTILITY FUNCTIONS ==========
 function celsiusToFahrenheit(c) {
   return Math.round((c * 9 / 5) + 32);
 }
@@ -179,28 +235,27 @@ function formatTime(unixTimestamp) {
 
 function updateBackground(weather) {
   const body = document.body;
-  const overlay = document.getElementById('background-overlay');
-
   let bgImage = '';
+
   switch (weather.toLowerCase()) {
     case 'clear':
-      bgImage = 'url("images\sunny.avif")';
+      bgImage = 'url("../images/sunny.avif")';
       break;
     case 'clouds':
-      bgImage = 'url("images\grey clouds.avif")';
+      bgImage = 'url("../images/grey clouds.avif")';
       break;
     case 'rain':
     case 'drizzle':
-      bgImage = 'url("images\rainy.avif")';
+      bgImage = 'url("../images/rainy.avif")';
       break;
     case 'thunderstorm':
-      bgImage = 'url("images\thunderstorm.avif")';
+      bgImage = 'url("../images/thunderstorm.avif")';
       break;
     case 'snow':
-      bgImage = 'url("images\snow.avif")';
+      bgImage = 'url("../images/snow.avif")';
       break;
     default:
-      bgImage = 'url("images\grey clouds.avif")';
+      bgImage = 'url("../images/grey clouds.avif")';
   }
 
   body.style.backgroundImage = bgImage;
@@ -218,6 +273,8 @@ function saveToRecent(city) {
 
 function loadRecentSearches() {
   const list = document.getElementById('search-list');
+  if (!list) return;
+
   list.innerHTML = '';
   const recent = JSON.parse(localStorage.getItem('recentSearches') || '[]');
 
@@ -227,4 +284,19 @@ function loadRecentSearches() {
     li.addEventListener('click', () => getWeatherData(city));
     list.appendChild(li);
   });
+}
+
+// ========== DARK MODE TOGGLE ==========
+function enableDarkMode() {
+  document.body.classList.add('dark-mode');
+  localStorage.setItem('darkMode', 'enabled');
+  const btn = document.getElementById('dark-mode-toggle');
+  if (btn) btn.textContent = '☀️ Light Mode';
+}
+
+function disableDarkMode() {
+  document.body.classList.remove('dark-mode');
+  localStorage.setItem('darkMode', 'disabled');
+  const btn = document.getElementById('dark-mode-toggle');
+  if (btn) btn.textContent = '🌙 Dark Mode';
 }
